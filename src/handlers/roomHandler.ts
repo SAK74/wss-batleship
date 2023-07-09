@@ -1,16 +1,20 @@
 import { WebSocket } from "ws";
 import roomsData from "../data/rooms";
 import { CommandType } from "types";
-import { WsWithName, sendToAll } from "../..";
+import { WsWithId, sendToAll } from "../..";
+import userData, { UserType } from "../data/userData";
 
-export const createRoom = (ws: WsWithName) => {
+export const createRoom = (ws: WsWithId) => {
   // console.log(ws)
-  roomsData.createRoom(ws.name);
+  let user: UserType | undefined;
+  if ((user = userData.users.find((us) => us.id === ws.id))) {
+    roomsData.createRoom(user.name, user.id);
+  }
   const answer: CommandType = {
     type: "update_room",
     data: JSON.stringify(roomsData.rooms),
   };
-  console.log("rooms: ", roomsData.rooms);
+  // console.log("rooms: ", roomsData.rooms);
   // ws.send(JSON.stringify(answer));
   sendToAll(JSON.stringify(answer));
 };

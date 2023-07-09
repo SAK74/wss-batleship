@@ -16,15 +16,19 @@ class Room {
 
 class Rooms {
   rooms: Room[] = [];
-  createRoom(name: string) {
+  createRoom(name: string, userIdx: number) {
     this.rooms.push(
       new Room(this.rooms.length, {
         name,
-        index: 0,
+        index: userIdx,
       })
     );
   }
   addUserToRoom(indexRoom: number, name: string) {}
+  deleteRoom(idx: number) {
+    this.rooms.splice(idx, 1);
+    return this.rooms;
+  }
 }
 
 export default new Rooms();
