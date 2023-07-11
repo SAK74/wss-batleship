@@ -11,21 +11,25 @@ export const shipsAdd = (ws: WsWithId, data: string) => {
     ships: ShipType[];
     indexPlayer: number;
   };
+
   let game: GameBoard | undefined;
   if ((game = games.find((game) => game.gameId === gameId))) {
     game.addShips(indexPlayer, ships);
     if (game.players.every((player) => player.ready)) {
+      // start the game
       game.players.forEach((player) => {
         player.ws.send(
           JSON.stringify({
             type: messTypes.START_GAME,
             data: JSON.stringify({
               ships: player.ships,
-              currentPlayerIndex: player.id,
+              currentPlayerIndex: game!.getPlayerIdx(player),
             }),
           })
         );
       });
+
+      // send shot order
       game.players.forEach((player) => {
         player.ws.send(
           JSON.stringify({
@@ -35,12 +39,15 @@ export const shipsAdd = (ws: WsWithId, data: string) => {
             }),
           })
         );
+
+        // handle attacks
         player.ws.on("message", (mess) => {
           const command = JSON.parse(mess.toString()) as CommandType;
           console.log(command);
           switch (command.type) {
             case messTypes.ATTACK:
               attack(game!, ws, command.data);
+              break;
           }
         });
       });

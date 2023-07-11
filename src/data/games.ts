@@ -14,12 +14,8 @@ export interface ShipType {
 
 // }
 
-// const rows = Array(10).fill(false);
-// const a = Array(10).fill(rows);
-// const cell = a[2][3];
-
 interface PlayerType {
-  id: number;
+  // id: number;
   ships: ShipType[];
   ready: boolean;
   ws: WsWithId;
@@ -39,8 +35,8 @@ export class GameBoard {
 
   // gamePlayersWs: WsWithId[] = [];
 
-  addShips(playerIdx: number, ships: ShipType[]) {
-    const idx = this.players.findIndex((player) => player.id === playerIdx);
+  addShips(idx: number, ships: ShipType[]) {
+    // const idx = this.players.findIndex((player) => player.id === playerIdx);
     this.players[idx] = {
       // id: this.players[idx].id,
       ...this.players[idx],
@@ -49,23 +45,32 @@ export class GameBoard {
     };
   }
 
-  addPlayer(idx: number, ws: WsWithId) {
-    this.players[idx] = {
-      id: ws.id,
+  addPlayer(ws: WsWithId) {
+    // this.players[idx] = {
+    //   id: ws.id,
+    //   ships: [],
+    //   ready: false,
+    //   ws,
+    //   // board: Array(10).fill(Array(10).fill(false)),
+    // };
+    // this.gamePlayersWs.push(ws);
+    this.players.push({
       ships: [],
       ready: false,
       ws,
-      // board: Array(10).fill(Array(10).fill(false)),
-    };
-    // this.gamePlayersWs.push(ws);
-    if (idx === 1) {
-      this.currentTurn = ws.id;
-    }
+    });
+    // if (idx === 1) {
+    //   this.currentTurn = ws.id;
+    // }
   }
 
-  getPlayerWithId(id: number) {
-    const idx = this.players.findIndex((player) => player.id === id);
-    return this.players[idx];
+  // getPlayerWithId(id: number) {
+  //   const idx = this.players.findIndex((player) => player.id === id);
+  //   return this.players[idx];
+  // }
+
+  getPlayerIdx(player: PlayerType) {
+    return this.players.indexOf(player);
   }
 
   // private fillBoard(board: PlayerType["board"], ships: ShipType[]) {
@@ -77,12 +82,13 @@ export class GameBoard {
   //   });
   // }
 
-  currentTurn?: number;
+  currentTurn = 1;
   changeCurrentTurn() {
-    this.currentTurn =
-      this.currentTurn === this.players[0].id
-        ? this.players[1].id
-        : this.players[0].id;
+    // this.currentTurn =
+    //   this.currentTurn === this.players[0].id
+    //     ? this.players[1].id
+    //     : this.players[0].id;
+    this.currentTurn = this.currentTurn === 0 ? 1 : 0;
     return this.currentTurn;
   }
 }

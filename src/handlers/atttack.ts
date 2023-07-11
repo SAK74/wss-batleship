@@ -3,14 +3,21 @@ import { WsWithId } from "../..";
 import { messTypes } from "../_constants";
 
 export const attack = (game: GameBoard, ws: WsWithId, data: string) => {
-  const { x, y } = JSON.parse(data) as {
+  const { x, y, indexPlayer } = JSON.parse(data) as {
     x: number;
     y: number;
     // gameId:number;
+    indexPlayer: number;
   };
   // const status =
   // const opponentIdx = game.players.findIndex((player) => player.id !== ws.id);
   // console.log(game.players[opponentIdx])
+  if (indexPlayer !== game.currentTurn) {
+    return;
+  }
+
+  // get shots status
+
   game.players.forEach((player) => {
     player.ws.send(
       JSON.stringify({
@@ -21,7 +28,7 @@ export const attack = (game: GameBoard, ws: WsWithId, data: string) => {
             y,
           },
           status: "killed",
-          currentPlayer: ws.id,
+          currentPlayer: indexPlayer,
         }),
       })
     );
@@ -32,6 +39,8 @@ export const attack = (game: GameBoard, ws: WsWithId, data: string) => {
     //   })
     // );
   });
+
+  // conditional switch a turn
   const currentPlayer = game.changeCurrentTurn();
   game.players.forEach((player) => {
     player.ws.send(

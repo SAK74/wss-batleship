@@ -1,4 +1,4 @@
-import { randomUUID } from "crypto";
+// import { randomUUID } from "crypto";
 
 interface UserInRoom {
   name: string;
@@ -24,10 +24,20 @@ class Rooms {
       })
     );
   }
-  addUserToRoom(indexRoom: number, name: string) {}
-  deleteRoom(idx: number) {
-    this.rooms.splice(idx, 1);
-    return this.rooms;
+  // addUserToRoom(indexRoom: number, name: string) {}
+  // deleteRoom(idx: number) {
+  //   this.rooms.splice(idx, 1);
+  //   // return this.rooms;
+  // }
+  deletePlayersRoom(playerId: number) {
+    // this.rooms.findIndex(room=>room.roomUsers.)
+    this.rooms = this.rooms.filter((room) =>
+      room.roomUsers.some((user) => user.index !== playerId)
+    );
+    return this;
+    // roomsWithUser.forEach(room=>{
+    //   this.rooms.splice(room.roomId,1)
+    // })
   }
 }
 
