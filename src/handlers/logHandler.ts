@@ -3,6 +3,7 @@ import { WebSocket } from "ws";
 import userData, { UserType } from "../data/userData";
 import { WsWithId, sendToAll } from "../..";
 import roomsData from "../data/rooms";
+import { messTypes } from "../_constants";
 
 export function logHandler(data: CommandType["data"], ws: WsWithId) {
   // console.log("handler: ", ws);
@@ -26,5 +27,12 @@ export function logHandler(data: CommandType["data"], ws: WsWithId) {
   };
   console.log("rooms: ", roomsData.rooms);
   // ws.send(JSON.stringify(answer));
-  sendToAll(JSON.stringify(rooms));
+  // sendToAll(JSON.stringify(rooms));
+  ws.send(JSON.stringify(rooms));
+  ws.send(
+    JSON.stringify({
+      type: messTypes.WINNERS_UPDATE,
+      data: JSON.stringify(userData.winners),
+    })
+  );
 }

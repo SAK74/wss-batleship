@@ -17,7 +17,7 @@ export const attack = (game: GameBoard, ws: WsWithId, data: string) => {
   }
 
   // get shots status
-  const status = game.getShotStatus(x, y, indexPlayer);
+  const status = game.getShotStatus(x, y);
   game.players.forEach((player) => {
     player.ws.send(
       JSON.stringify({

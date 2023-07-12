@@ -5,4 +5,7 @@ export enum messTypes {
   START_GAME = "start_game",
   TURN = "turn",
   ATTACK = "attack",
+  WINNERS_UPDATE = "update_winners",
 }
+
+export const BOARD_SIZE = 10;
