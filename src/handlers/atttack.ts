@@ -7,7 +7,7 @@ export const attack = (game: GameBoard, ws: WsWithId, data: string) => {
     x: number;
     y: number;
     // gameId:number;
-    indexPlayer: number;
+    indexPlayer: 0 | 1;
   };
   // const status =
   // const opponentIdx = game.players.findIndex((player) => player.id !== ws.id);
@@ -17,7 +17,7 @@ export const attack = (game: GameBoard, ws: WsWithId, data: string) => {
   }
 
   // get shots status
-
+  const status = game.getShotStatus(x, y, indexPlayer);
   game.players.forEach((player) => {
     player.ws.send(
       JSON.stringify({
@@ -27,7 +27,7 @@ export const attack = (game: GameBoard, ws: WsWithId, data: string) => {
             x,
             y,
           },
-          status: "killed",
+          status,
           currentPlayer: indexPlayer,
         }),
       })
@@ -41,15 +41,18 @@ export const attack = (game: GameBoard, ws: WsWithId, data: string) => {
   });
 
   // conditional switch a turn
-  const currentPlayer = game.changeCurrentTurn();
-  game.players.forEach((player) => {
-    player.ws.send(
-      JSON.stringify({
-        type: messTypes.TURN,
-        data: JSON.stringify({ currentPlayer }), // has changed twice!!!
-      })
-    );
-  });
+  if (status === "miss") {
+    const currentPlayer = game.changeCurrentTurn();
+    game.players.forEach((player) => {
+      player.ws.send(
+        JSON.stringify({
+          type: messTypes.TURN,
+          data: JSON.stringify({ currentPlayer }), // has changed twice!!!
+        })
+      );
+    });
+  }
+
   // ws.send(
   //   JSON.stringify({
   //     type: messTypes.ATTACK,

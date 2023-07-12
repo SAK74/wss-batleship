@@ -53,6 +53,7 @@ export const addUserToRoom = (
       );
     });
 
+    // delete all users rooms
     const newRooms = roomsData
       .deletePlayersRoom(ws.id)
       .deletePlayersRoom(firstPlayerWs.id).rooms;

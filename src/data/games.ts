@@ -1,3 +1,4 @@
+import { messTypes } from "../_constants";
 import { WsWithId } from "../..";
 
 export interface ShipType {
@@ -90,6 +91,81 @@ export class GameBoard {
     //     : this.players[0].id;
     this.currentTurn = this.currentTurn === 0 ? 1 : 0;
     return this.currentTurn;
+  }
+
+  getShotStatus(x: number, y: number, playerIdx: number) {
+    console.log("shot to : ", x, y, playerIdx);
+    let status = "miss";
+    this.players[1 - playerIdx].ships.forEach((ship, shipIdx) => {
+      for (let piece = 0; piece < ship.length; piece += 1) {
+        const pieceX = ship.position.x + (ship.direction ? 0 : piece);
+        const pieceY = ship.position.y + (ship.direction ? piece : 0);
+        if (pieceX === x && pieceY === y) {
+          // return true;
+          // console.log(shipIdx, ship.type);
+          status = "shot";
+          switch (ship.type) {
+            case "huge":
+              ship.type = "large";
+              break;
+            case "large":
+              ship.type = "medium";
+              break;
+            case "medium":
+              ship.type = "small";
+              break;
+            case "small":
+              status = "killed";
+              // do send status to 'killed' for all pieces,
+              this.sendKilledStatusForShip(ship, playerIdx);
+              // do set status 'miss' for all around
+              break;
+            default:
+          }
+          break;
+        }
+      }
+    });
+    return status;
+    // this.players.forEach((player) => {
+    //   player.ws.send(
+    //     JSON.stringify({
+    //       type: messTypes.ATTACK,
+    //       data: JSON.stringify({
+    //         position: {
+    //           x,
+    //           y,
+    //         },
+    //         status,
+    //         currentPlayer: 1-playerIdx,
+    //       }),
+    //     })
+    //   );
+    // });
+  }
+
+  private sendKilledStatusForShip(ship: ShipType, currentPlayer: number) {
+    // const shipLength = this.players[playerIdx].ships[shipIdx].length;
+    for (let piece = 0; piece < ship.length; piece += 1) {
+      const pieceX = ship.position.x + (ship.direction ? 0 : piece);
+      const pieceY = ship.position.y + (ship.direction ? piece : 0);
+      this.players.forEach((player) => {
+        player.ws.send(
+          JSON.stringify({
+            type: messTypes.ATTACK,
+            data: JSON.stringify({
+              position: {
+                x: pieceX,
+                y: pieceY,
+              },
+              status: "killed",
+              currentPlayer,
+            }),
+          })
+        );
+      });
+    }
+    // for ()
   }
 }
 

@@ -5,7 +5,7 @@ import { messTypes } from "../_constants";
 import { attack } from "./atttack";
 
 export const shipsAdd = (ws: WsWithId, data: string) => {
-  console.log("ships data: ", JSON.parse(data));
+  console.log("ships data: ", JSON.parse(data)); //
   const { gameId, indexPlayer, ships } = JSON.parse(data) as {
     gameId: number;
     ships: ShipType[];
