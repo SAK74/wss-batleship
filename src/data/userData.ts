@@ -15,7 +15,7 @@ class UsersData {
   addUser(user: UserType) {
     do {
       user.id = Math.round(Math.random() * 100);
-    } while (this.users.find((u) => u.id === user.id));
+    } while (this.users.some((u) => u.id === user.id));
     this.users.push(user);
     return user;
   }
@@ -30,7 +30,6 @@ class UsersData {
         !(winner = this.winners.find((winner) => winner.name === user?.name))
       ) {
         this.winners.push({ name: user.name, wins: 1 });
-        // }
       } else {
         winner.wins += 1;
       }

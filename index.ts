@@ -5,7 +5,6 @@ import { logHandler } from "./src/handlers/logHandler";
 import { createRoom } from "./src/handlers/roomHandler";
 import { addUserToRoom } from "./src/handlers/addToRoom";
 import { messTypes } from "./src/_constants";
-import { shipsAdd } from "./src/handlers/shipsAdd";
 
 const HTTP_PORT = 8181;
 const WSS_PORT = 3000;
@@ -29,12 +28,9 @@ const wss = new ws.Server({ port: WSS_PORT });
 wss.on("connection", (ws: WsWithId, req) => {
   clients.push(ws);
   console.log(`Ws connected in ${req.headers.host}`);
-  // console.log("clients: ", wss.clients);
-  // ws.id=''
   ws.on("message", function (mess) {
     const command = JSON.parse(mess.toString()) as CommandType;
     console.log(command);
-    // console.log("state: ", ws.readyState);
     switch (command.type) {
       case "reg":
         logHandler(command.data, ws);
@@ -42,11 +38,8 @@ wss.on("connection", (ws: WsWithId, req) => {
       case "create_room":
         createRoom(ws);
         break;
-      case "add_user_to_room":
+      case messTypes.ADD_TO_ROOM:
         addUserToRoom(ws, command.data, clients);
-        break;
-      case messTypes.SHIPS_ADD:
-        shipsAdd(ws, command.data);
         break;
     }
   });

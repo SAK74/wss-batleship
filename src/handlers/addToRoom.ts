@@ -3,12 +3,7 @@ import { WsWithId, sendToAll } from "../..";
 import roomsData from "../data/rooms";
 import { CommandType } from "types";
 import { messTypes } from "../_constants";
-
-// interface AddToRoom {
-//   indexRoom: number;
-// }
-
-// const games = [];
+import { shipsAdd } from "./shipsAdd";
 
 export const addUserToRoom = (
   ws: WsWithId,
@@ -23,24 +18,11 @@ export const addUserToRoom = (
   const room = roomsData.rooms[roomIndex];
   const game = new GameBoard();
   game.addPlayer(ws);
-
   const firstPlayerWs = clients.find(
     (client) => client.id === room.roomUsers[0].index
   );
-  // let firstWs: WsWithId | undefined;
   if (firstPlayerWs && firstPlayerWs.id !== ws.id) {
     game.addPlayer(firstPlayerWs);
-    // game.gamePlayersWs.push(firstWs);
-
-    // game.gamePlayers.push(clients.find(client=>client.id===firstPlayer?.id))
-    // games.push(game);
-    // const answer = (idx: number) => ({
-    //   type: messTypes.CREATE_GAME,
-    //   data: JSON.stringify({
-    //     idGame: game.gameId,
-    //     idPlayer: game.getPlayerIdx(),
-    //   }),
-    // });
     game.players.forEach((player) => {
       player.ws.send(
         JSON.stringify({
@@ -51,6 +33,25 @@ export const addUserToRoom = (
           }),
         })
       );
+      player.ws.on("message", (mess) => {
+        const command = JSON.parse(mess.toString()) as CommandType;
+        console.log(command);
+        switch (command.type) {
+          case messTypes.SHIPS_ADD:
+            shipsAdd(game, command.data);
+            break;
+          case messTypes.ATTACK:
+            const { x, y } = JSON.parse(command.data) as {
+              x: number;
+              y: number;
+            };
+            game.attack(x, y);
+            break;
+          case messTypes.RANDOM_ATTACK:
+            game.randomAttack();
+            break;
+        }
+      });
     });
 
     // delete all users rooms

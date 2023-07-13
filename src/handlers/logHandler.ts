@@ -1,15 +1,11 @@
 import { CommandType } from "types";
-import { WebSocket } from "ws";
 import userData, { UserType } from "../data/userData";
-import { WsWithId, sendToAll } from "../..";
+import { WsWithId } from "../..";
 import roomsData from "../data/rooms";
 import { messTypes } from "../_constants";
 
 export function logHandler(data: CommandType["data"], ws: WsWithId) {
-  // console.log("handler: ", ws);
   const user = JSON.parse(data) as UserType;
-  // ws.name = user.name;
-  // console.log("data: ", user);
   const { name, id } = userData.addUser(user);
   ws.id = id;
   const reg: CommandType = {
@@ -22,12 +18,9 @@ export function logHandler(data: CommandType["data"], ws: WsWithId) {
   };
   ws.send(JSON.stringify(reg));
   const rooms: CommandType = {
-    type: "update_room",
+    type: messTypes.ROOM_UPDATE,
     data: JSON.stringify(roomsData.rooms),
   };
-  console.log("rooms: ", roomsData.rooms);
-  // ws.send(JSON.stringify(answer));
-  // sendToAll(JSON.stringify(rooms));
   ws.send(JSON.stringify(rooms));
   ws.send(
     JSON.stringify({

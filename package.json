@@ -19,7 +19,6 @@
     "ts-node-dev": "^2.0.0"
   },
   "dependencies": {
-    "nodemon": "^2.0.22",
     "typescript": "^5.1.6",
     "ws": "^8.8.0"
   }
