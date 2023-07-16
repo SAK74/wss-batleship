@@ -19,9 +19,18 @@ class UsersData {
     this.users.push({ ...user, wins: 0 });
     return user;
   }
+
   getUserById(id: number) {
     return this.users.find((user) => user.id === id);
   }
+
+  verify(_user: UserType) {
+    if (this.users.some(({ name }) => name === _user.name)) {
+      return "User with this name already exist...";
+    }
+    return false;
+  }
+
   updateWinner(_id: number) {
     let user: UserType | undefined;
     if ((user = this.getUserById(_id))) {
