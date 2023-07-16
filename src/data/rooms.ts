@@ -15,8 +15,12 @@ class Room {
 class Rooms {
   rooms: Room[] = [];
   createRoom(name: string, userIdx: number) {
+    let _id: number;
+    do {
+      _id = Math.round(Math.random() * 100);
+    } while (this.rooms.some(({ roomId }) => roomId === _id));
     this.rooms.push(
-      new Room(this.rooms.length, {
+      new Room(_id, {
         name,
         index: userIdx,
       })
@@ -26,7 +30,6 @@ class Rooms {
     this.rooms = this.rooms.filter((room) =>
       room.roomUsers.some((user) => user.index !== playerId)
     );
-    return this;
   }
 }
 

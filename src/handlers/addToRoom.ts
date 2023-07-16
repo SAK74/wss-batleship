@@ -10,16 +10,15 @@ export const addUserToRoom = (
   data: CommandType["data"],
   clients: WsWithId[]
 ) => {
-  const roomIndex = (
-    JSON.parse(data) as {
-      indexRoom: number;
-    }
-  ).indexRoom;
-  const room = roomsData.rooms[roomIndex];
+  const { indexRoom } = JSON.parse(data) as {
+    indexRoom: number;
+  };
+  const room = roomsData.rooms.find(({ roomId }) => roomId === indexRoom);
   const game = new GameBoard();
   game.addPlayer(ws);
+
   const firstPlayerWs = clients.find(
-    (client) => client.id === room.roomUsers[0].index
+    (client) => client.id === room?.roomUsers[0].index
   );
   if (firstPlayerWs && firstPlayerWs.id !== ws.id) {
     game.addPlayer(firstPlayerWs);
@@ -35,7 +34,7 @@ export const addUserToRoom = (
       );
       player.ws.on("message", (mess) => {
         const command = JSON.parse(mess.toString()) as CommandType;
-        console.log(command);
+        console.log(command.type);
         switch (command.type) {
           case messTypes.SHIPS_ADD:
             shipsAdd(game, command.data);
@@ -55,12 +54,11 @@ export const addUserToRoom = (
     });
 
     // delete all users rooms
-    const newRooms = roomsData
-      .deletePlayersRoom(ws.id)
-      .deletePlayersRoom(firstPlayerWs.id).rooms;
+    roomsData.deletePlayersRoom(ws.id);
+    roomsData.deletePlayersRoom(firstPlayerWs.id);
     const roomUpdate: CommandType = {
       type: messTypes.ROOM_UPDATE,
-      data: JSON.stringify(newRooms),
+      data: JSON.stringify(roomsData.rooms),
     };
     sendToAll(JSON.stringify(roomUpdate));
   }
