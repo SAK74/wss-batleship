@@ -4,10 +4,7 @@ import roomsData from "../data/rooms";
 import { CommandType } from "types";
 import { messTypes } from "../_constants";
 import { shipsAdd } from "./shipsAdd";
-import {
-  createUpdateRoomMess,
-  creatGameCreateMess,
-} from "../services/messages";
+import { createUpdateRoomMess, sendGameCreateMess } from "../services/messages";
 
 export const addUserToRoom = (
   ws: WsWithId,
@@ -27,12 +24,9 @@ export const addUserToRoom = (
   if (firstPlayerWs && firstPlayerWs.id !== ws.id) {
     game.addPlayer(firstPlayerWs);
     game.players.forEach((player) => {
-      player.ws.send(
-        creatGameCreateMess(game.gameId, game.getPlayerIdx(player))
-      );
+      sendGameCreateMess(player.ws, game.gameId, game.getPlayerIdx(player));
       player.ws.on("message", (mess) => {
         const command = JSON.parse(mess.toString()) as CommandType;
-        console.log(command.type);
         switch (command.type) {
           case messTypes.SHIPS_ADD:
             shipsAdd(game, command.data);

@@ -1,5 +1,5 @@
 import { GameBoard, ShipType } from "../data/games";
-import { createStartGameMess, createTurnMess } from "../services/messages";
+import { sendStartGameMess, sendTurnMess } from "../services/messages";
 
 export const shipsAdd = (game: GameBoard, data: string) => {
   const { indexPlayer, ships } = JSON.parse(data) as {
@@ -11,14 +11,12 @@ export const shipsAdd = (game: GameBoard, data: string) => {
   if (game.players.every((player) => player.ready)) {
     // start the game
     game.players.forEach((player) => {
-      player.ws.send(
-        createStartGameMess(player.ships, game.getPlayerIdx(player))
-      );
+      sendStartGameMess(player.ws, player.ships, game.getPlayerIdx(player));
     });
 
     // send shot order
-    game.players.forEach((player) => {
-      player.ws.send(createTurnMess(game.currentTurn));
+    game.players.forEach(({ ws }) => {
+      sendTurnMess(ws, game.currentTurn);
     });
   }
 };

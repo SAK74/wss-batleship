@@ -3,9 +3,9 @@ import { WsWithId } from "../..";
 import usersData from "../data/userData";
 import { StatusType } from "types";
 import {
-  createAttackMess,
-  createTurnMess,
-  createFinishGameMess,
+  sendAttackMess,
+  sendTurnMess,
+  sendFinishGameMess,
 } from "../services/messages";
 
 export interface ShipType {
@@ -104,7 +104,7 @@ export class GameBoard {
             case "small":
               status = "killed";
               this.sendKilledStatusForShip(ship, shipIdx);
-              break;
+              return;
             default:
           }
           break;
@@ -112,15 +112,17 @@ export class GameBoard {
       }
     });
     // send attack mess
-    this.players.forEach(({ ws }) => {
-      ws.send(createAttackMess({ x, y }, status, this.currentTurn));
-    });
-    // sent turn mess
-    if (status === "miss") {
-      const currentPlayer = this.changeCurrentTurn();
+    if (status === "miss" || status === "shot") {
       this.players.forEach(({ ws }) => {
-        ws.send(createTurnMess(currentPlayer));
+        sendAttackMess(ws, { x, y }, status, this.currentTurn);
       });
+      // sent turn mess
+      if (status === "miss") {
+        const currentPlayer = this.changeCurrentTurn();
+        this.players.forEach(({ ws }) => {
+          sendTurnMess(ws, currentPlayer);
+        });
+      }
     }
   }
 
@@ -128,9 +130,12 @@ export class GameBoard {
     for (let piece = 0; piece < ship.length; piece += 1) {
       const pieceX = ship.position.x + (ship.direction ? 0 : piece);
       const pieceY = ship.position.y + (ship.direction ? piece : 0);
-      this.players.forEach((player) => {
-        player.ws.send(
-          createAttackMess({ x: pieceX, y: pieceY }, "killed", this.currentTurn)
+      this.players.forEach(({ ws }) => {
+        sendAttackMess(
+          ws,
+          { x: pieceX, y: pieceY },
+          "killed",
+          this.currentTurn
         );
       });
     }
@@ -182,14 +187,14 @@ export class GameBoard {
         shots.push({ x, y });
       }
       this.players.forEach(({ ws }) => {
-        ws.send(createAttackMess({ x, y }, "miss", this.currentTurn));
+        sendAttackMess(ws, { x, y }, "miss", this.currentTurn);
       });
     });
   }
 
   private finishGame() {
     this.players.forEach(({ ws }) => {
-      ws.send(createFinishGameMess(this.currentTurn));
+      sendFinishGameMess(ws, this.currentTurn);
     });
     const winnerId = this.players[this.currentTurn].ws.id;
     usersData.updateWinner(winnerId);

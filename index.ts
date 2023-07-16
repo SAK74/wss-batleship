@@ -20,6 +20,8 @@ const clients: WsWithId[] = [];
 export const sendToAll = (mess: string) => {
   clients.forEach((ws) => {
     ws.send(mess);
+    const { type } = JSON.parse(mess) as { type: string };
+    console.log("-> " + type);
   });
 };
 
@@ -30,7 +32,7 @@ wss.on("connection", (ws: WsWithId, req) => {
   console.log(`Ws connected in ${req.headers.host}`);
   ws.on("message", function (mess) {
     const command = JSON.parse(mess.toString()) as CommandType;
-    console.log(command.type);
+    console.log("<- " + command.type);
     switch (command.type) {
       case messTypes.REG:
         logHandler(command.data, ws);
@@ -43,4 +45,12 @@ wss.on("connection", (ws: WsWithId, req) => {
         break;
     }
   });
+});
+wss.on("error", (error) => {
+  console.log(error.message);
+});
+
+process.on("SIGINT", () => {
+  wss.close();
+  process.exit();
 });
