@@ -30,12 +30,12 @@ wss.on("connection", (ws: WsWithId, req) => {
   console.log(`Ws connected in ${req.headers.host}`);
   ws.on("message", function (mess) {
     const command = JSON.parse(mess.toString()) as CommandType;
-    console.log(command);
+    console.log(command.type);
     switch (command.type) {
-      case "reg":
+      case messTypes.REG:
         logHandler(command.data, ws);
         break;
-      case "create_room":
+      case messTypes.CREATE_ROOM:
         createRoom(ws);
         break;
       case messTypes.ADD_TO_ROOM:

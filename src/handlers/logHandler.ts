@@ -1,31 +1,24 @@
 import { CommandType } from "types";
 import userData, { UserType } from "../data/userData";
-import { WsWithId } from "../..";
+import { WsWithId, sendToAll } from "../..";
 import roomsData from "../data/rooms";
-import { messTypes } from "../_constants";
+import {
+  createRegMess,
+  createUpdateRoomMess,
+  createWinnersUpdateMess,
+} from "../services/messages";
 
 export function logHandler(data: CommandType["data"], ws: WsWithId) {
   const user = JSON.parse(data) as UserType;
   const { name, id } = userData.addUser(user);
   ws.id = id;
-  const reg: CommandType = {
-    type: "reg",
-    data: JSON.stringify({
-      name,
-      index: id,
-      error: false,
-    }),
-  };
-  ws.send(JSON.stringify(reg));
-  const rooms: CommandType = {
-    type: messTypes.ROOM_UPDATE,
-    data: JSON.stringify(roomsData.rooms),
-  };
-  ws.send(JSON.stringify(rooms));
-  ws.send(
-    JSON.stringify({
-      type: messTypes.WINNERS_UPDATE,
-      data: JSON.stringify(userData.winners),
-    })
-  );
+
+  // do add user veryfication
+  ws.send(createRegMess(name, id));
+  ws.send(createUpdateRoomMess());
+  ws.send(createWinnersUpdateMess());
+  ws.on("close", () => {
+    roomsData.deletePlayersRoom(ws.id);
+    sendToAll(createUpdateRoomMess());
+  });
 }

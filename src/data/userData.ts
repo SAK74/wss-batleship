@@ -1,5 +1,5 @@
-import { messTypes } from "../_constants";
 import { sendToAll } from "../..";
+import { createWinnersUpdateMess } from "../services/messages";
 
 export interface UserType {
   name: string;
@@ -16,7 +16,7 @@ class UsersData {
     do {
       user.id = Math.round(Math.random() * 100);
     } while (this.users.some((u) => u.id === user.id));
-    this.users.push(user);
+    this.users.push({ ...user, wins: 0 });
     return user;
   }
   getUserById(id: number) {
@@ -33,12 +33,7 @@ class UsersData {
       } else {
         winner.wins += 1;
       }
-      sendToAll(
-        JSON.stringify({
-          type: messTypes.WINNERS_UPDATE,
-          data: JSON.stringify(this.winners),
-        })
-      );
+      sendToAll(createWinnersUpdateMess());
     }
   }
 }

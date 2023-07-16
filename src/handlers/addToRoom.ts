@@ -4,6 +4,10 @@ import roomsData from "../data/rooms";
 import { CommandType } from "types";
 import { messTypes } from "../_constants";
 import { shipsAdd } from "./shipsAdd";
+import {
+  createUpdateRoomMess,
+  creatGameCreateMess,
+} from "../services/messages";
 
 export const addUserToRoom = (
   ws: WsWithId,
@@ -24,13 +28,7 @@ export const addUserToRoom = (
     game.addPlayer(firstPlayerWs);
     game.players.forEach((player) => {
       player.ws.send(
-        JSON.stringify({
-          type: messTypes.CREATE_GAME,
-          data: JSON.stringify({
-            idGame: game.gameId,
-            idPlayer: game.getPlayerIdx(player),
-          }),
-        })
+        creatGameCreateMess(game.gameId, game.getPlayerIdx(player))
       );
       player.ws.on("message", (mess) => {
         const command = JSON.parse(mess.toString()) as CommandType;
@@ -56,10 +54,6 @@ export const addUserToRoom = (
     // delete all users rooms
     roomsData.deletePlayersRoom(ws.id);
     roomsData.deletePlayersRoom(firstPlayerWs.id);
-    const roomUpdate: CommandType = {
-      type: messTypes.ROOM_UPDATE,
-      data: JSON.stringify(roomsData.rooms),
-    };
-    sendToAll(JSON.stringify(roomUpdate));
+    sendToAll(createUpdateRoomMess());
   }
 };
