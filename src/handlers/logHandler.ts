@@ -1,6 +1,6 @@
 import { CommandType } from "types";
 import userData, { UserType } from "../data/userData";
-import { WsWithId, sendToAll } from "../..";
+import { WsWithId, clients, sendToAll } from "../..";
 import roomsData from "../data/rooms";
 import {
   sendRegMess,
@@ -19,7 +19,12 @@ export function logHandler(data: CommandType["data"], ws: WsWithId) {
     sendRegMess(ws, name, id);
     sendToAll(createUpdateRoomMess());
     sendToAll(createWinnersUpdateMess());
+
+    // remove user from rooms & ws collection after close
     ws.on("close", () => {
+      console.log(`ws ${ws.id} was closed`);
+      const wsIdx = clients.findIndex(({ id }) => id === ws.id);
+      clients.splice(wsIdx, 1);
       roomsData.deletePlayersRoom(ws.id);
       sendToAll(createUpdateRoomMess());
     });

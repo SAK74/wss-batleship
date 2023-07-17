@@ -16,7 +16,7 @@ export interface WsWithId extends ws {
 console.log(`Start static http server on the ${HTTP_PORT} port!`);
 httpServer.listen(HTTP_PORT);
 
-const clients: WsWithId[] = [];
+export const clients: WsWithId[] = [];
 export const sendToAll = (mess: string) => {
   clients.forEach((ws) => {
     ws.send(mess);
@@ -41,7 +41,7 @@ wss.on("connection", (ws: WsWithId, req) => {
         createRoom(ws);
         break;
       case messTypes.ADD_TO_ROOM:
-        addUserToRoom(ws, command.data, clients);
+        addUserToRoom(ws, command.data);
         break;
     }
   });
@@ -51,6 +51,9 @@ wss.on("error", (error) => {
 });
 
 process.on("SIGINT", () => {
+  sendToAll(
+    JSON.stringify({ type: "error", reason: "server was terminated!" })
+  );
   wss.close();
   process.exit();
 });

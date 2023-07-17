@@ -1,16 +1,12 @@
 import { GameBoard } from "../data/games";
-import { WsWithId, sendToAll } from "../..";
+import { WsWithId, sendToAll, clients } from "../..";
 import roomsData from "../data/rooms";
 import { CommandType } from "types";
 import { messTypes } from "../_constants";
 import { shipsAdd } from "./shipsAdd";
 import { createUpdateRoomMess, sendGameCreateMess } from "../services/messages";
 
-export const addUserToRoom = (
-  ws: WsWithId,
-  data: CommandType["data"],
-  clients: WsWithId[]
-) => {
+export const addUserToRoom = (ws: WsWithId, data: CommandType["data"]) => {
   const { indexRoom } = JSON.parse(data) as {
     indexRoom: number;
   };
@@ -44,7 +40,6 @@ export const addUserToRoom = (
         }
       });
     });
-
     // delete all users rooms
     roomsData.deletePlayersRoom(ws.id);
     roomsData.deletePlayersRoom(firstPlayerWs.id);
